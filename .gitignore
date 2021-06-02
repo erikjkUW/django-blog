@@ -1,6 +1,0 @@
-*.pyc
-*.db
-*.sqlite3
-/venv/
-mysite/secret_key.py
-/.idea/

@@ -7,6 +7,7 @@ from blogging.views import (
     UserViewSet,
     PostViewSet,
     CategoryViewSet,
+    LatestPostsFeed,
 )
 
 router = routers.DefaultRouter()
@@ -20,4 +21,5 @@ urlpatterns = [
     path("", PostListView.as_view(), name="blog_index"),
     path("add/", add_model, name="add_post"),
     path("posts/<int:pk>/", PostDetailView.as_view(), name="blog_detail"),
+    path("feed/", LatestPostsFeed(), name="post_feed"),
 ]

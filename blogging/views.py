@@ -1,9 +1,26 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.template import loader
+from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from blogging.models import Post
+from django.contrib.auth.models import User
+from rest_framework import viewsets, permissions
+from blogging.models import Post, Category
+from blogging.forms import MyPostForm
+from blogging.serializers import UserSerializer, PostSerializer, CategorySerializer
+
+
+def add_model(request):
+
+    if request.method == "POST":
+        form = MyPostForm(request.POST)
+        if form.is_valid():
+            model_instance = form.save(commit=False)
+            model_instance.published_date = timezone.now()
+            model_instance.save()
+            return redirect("/")
+    else:
+        form = MyPostForm()
+        return render(request, "blogging/add.html", {"form": form})
 
 
 class PostListView(ListView):
@@ -16,6 +33,26 @@ class PostListView(ListView):
 class PostDetailView(DetailView):
     queryset = Post.objects.exclude(published_date__exact=None)
     template_name = "blogging/detail.html"
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by("-date_joined")
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.exclude(published_date__exact=None).order_by(
+        "-published_date"
+    )
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 # def stub_view(request, *args, **kwargs):

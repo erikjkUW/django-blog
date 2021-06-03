@@ -8,6 +8,7 @@ from blogging.models import Post, Category
 from blogging.forms import MyPostForm
 from blogging.serializers import UserSerializer, PostSerializer, CategorySerializer
 
+
 def add_model(request):
 
     if request.method == "POST":
@@ -16,10 +17,10 @@ def add_model(request):
             model_instance = form.save(commit=False)
             model_instance.published_date = timezone.now()
             model_instance.save()
-            return redirect('/')
+            return redirect("/")
     else:
         form = MyPostForm()
-        return render(request, "blogging/add.html", {'form': form})
+        return render(request, "blogging/add.html", {"form": form})
 
 
 class PostListView(ListView):
@@ -35,7 +36,7 @@ class PostDetailView(DetailView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = User.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 

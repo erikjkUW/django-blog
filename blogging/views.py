@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from django.urls import reverse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.models import User
+from django.contrib.syndication.views import Feed
 from rest_framework import viewsets, permissions
 from blogging.models import Post, Category
 from blogging.forms import MyPostForm
@@ -53,6 +55,26 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class LatestPostsFeed(Feed):
+    title = "Cool Posts"
+    link = "/feed/"
+    description = "Cool posts from the mind of an author"
+
+    def items(self):
+        return Post.objects.exclude(published_date__exact=None).order_by(
+            "-published_date"
+        )[:5]
+
+    def item_title(self, post):
+        return post.title
+
+    def item_description(self, post):
+        return post.text
+
+    def item_link(self, post):
+        return reverse("blog_detail", args=[post.pk])
 
 
 # def stub_view(request, *args, **kwargs):
